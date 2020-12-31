@@ -10,6 +10,9 @@ from .serializers import SimpleVotingSerializer, VotingSerializer
 from base.perms import UserIsStaff
 from base.models import Auth
 
+import os, tempfile, zipfile
+from django.http import HttpResponse
+from wsgiref.util import FileWrapper
 
 class VotingView(generics.ListCreateAPIView):
     queryset = Voting.objects.all()
@@ -99,3 +102,29 @@ class VotingUpdate(generics.RetrieveUpdateDestroyAPIView):
             msg = 'Action not found, try with start, stop or tally'
             st = status.HTTP_400_BAD_REQUEST
         return Response(msg, status=st)
+
+class VotingTally():
+    def send_file(request):
+
+        filename = Voting.tally_votes # Select your file here.
+        wrapper = FileWrapper(file(filename))
+        response = HttpResponse(wrapper, content_type='text/plain')
+        response['Content-Length'] = os.path.getsize(filename)
+        return response
+
+
+    def send_zipfile(request):
+
+        temp = tempfile.TemporaryFile()
+        archive = zipfile.ZipFile(temp, 'w', zipfile.ZIP_DEFLATED)
+        "Para descargar X veces el archivo"
+        for index in range(10):
+            filename = Voting.tally_votes# Select your files here.
+            archive.write(filename, 'tally%d.txt' % index)
+        archive.close()
+        wrapper = FileWrapper(temp)
+        response = HttpResponse(wrapper, content_type='application/zip')
+        response['Content-Disposition'] = 'attachment; filename=tally.zip'
+        response['Content-Length'] = temp.tell()
+        temp.seek(0)
+        return response
