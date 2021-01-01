@@ -3,6 +3,8 @@ from django.contrib.postgres.fields import JSONField
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
+import urllib
+
 from base import mods
 from base.models import Auth, Key
 
@@ -41,6 +43,12 @@ class Voting(models.Model):
 
     tally = JSONField(blank=True, null=True)
     postproc = JSONField(blank=True, null=True)
+
+    url = models.CharField(max_length=40)
+
+    def save(self, *args, **kwargs):
+        self.url = urllib.parse.quote_plus(self.url.encode('utf-8'))
+        super(Voting, self).save(*args, **kwargs)
 
     def create_pubkey(self):
         if self.pub_key or not self.auths.count():
