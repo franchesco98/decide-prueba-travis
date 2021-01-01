@@ -44,7 +44,7 @@ class Voting(models.Model):
     tally = JSONField(blank=True, null=True)
     postproc = JSONField(blank=True, null=True)
 
-    url = models.CharField(max_length=40)
+    url = models.CharField(max_length=40, help_text=u"http://localhost:8000/booth/")
 
     def save(self, *args, **kwargs):
         self.url = urllib.parse.quote_plus(self.url.encode('utf-8'))
