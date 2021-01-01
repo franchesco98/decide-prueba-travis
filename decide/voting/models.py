@@ -1,12 +1,13 @@
-from django.db import models
-from django.contrib.postgres.fields import JSONField
-from django.db.models.signals import post_save
-from django.dispatch import receiver
-
 import urllib
 
 from base import mods
 from base.models import Auth, Key
+from django.contrib.postgres.fields import JSONField
+from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
+from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.utils.translation import gettext_lazy as _
 
 
 class Question(models.Model):
@@ -46,8 +47,17 @@ class Voting(models.Model):
 
     url = models.CharField(max_length=40, help_text=u"http://localhost:8000/booth/")
 
+    def clean_fields(self, exclude=None):
+        super(Voting, self).clean_fields(exclude)
+        
+        url = urllib.parse.quote_plus(self.url.encode('utf-8'))
+        
+        if Voting.objects.filter(url=url).exists():
+            raise ValidationError({'url': "The url already exists."})
+
     def save(self, *args, **kwargs):
         self.url = urllib.parse.quote_plus(self.url.encode('utf-8'))
+        # self.clean_url()
         super(Voting, self).save(*args, **kwargs)
 
     def create_pubkey(self):
