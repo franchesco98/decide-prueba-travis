@@ -5,7 +5,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework import generics, status
 from rest_framework.response import Response
 
-from .models import Question, QuestionOption, Voting
+from .models import Question, QuestionOption, Voting, YesOrNo
 from .serializers import SimpleVotingSerializer, VotingSerializer
 from base.perms import UserIsStaff
 from base.models import Auth
@@ -35,6 +35,9 @@ class VotingView(generics.ListCreateAPIView):
 
         question = Question(desc=request.data.get('question'))
         question.save()
+
+        yesorno = YesOrNo(desc=request.data.get('yesorno'))
+        yesorno.save()
         for idx, q_opt in enumerate(request.data.get('question_opt')):
             opt = QuestionOption(question=question, option=q_opt, number=idx)
             opt.save()
@@ -99,3 +102,4 @@ class VotingUpdate(generics.RetrieveUpdateDestroyAPIView):
             msg = 'Action not found, try with start, stop or tally'
             st = status.HTTP_400_BAD_REQUEST
         return Response(msg, status=st)
+

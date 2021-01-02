@@ -13,6 +13,12 @@ class Question(models.Model):
     def __str__(self):
         return self.desc
 
+class YesOrNo(models.Model):
+    desc = models.TextField()
+
+    def __str__(self):
+        return self.desc
+
 
 class QuestionOption(models.Model):
     question = models.ForeignKey(Question, related_name='options', on_delete=models.CASCADE)
@@ -121,3 +127,4 @@ class Voting(models.Model):
 
     def __str__(self):
         return self.name
+
