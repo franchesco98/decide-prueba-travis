@@ -5,7 +5,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework import generics, status
 from rest_framework.response import Response
 
-from .models import Question, QuestionOption, Voting, YesOrNo
+from .models import Question, QuestionOption, Voting, YesOrNo, YesOrNoOption
 from .serializers import SimpleVotingSerializer, VotingSerializer
 from base.perms import UserIsStaff
 from base.models import Auth
@@ -36,11 +36,21 @@ class VotingView(generics.ListCreateAPIView):
         question = Question(desc=request.data.get('question'))
         question.save()
 
+        #Esto ha sido añadido para las preguntas YesOrNo
+
+        for data in ['name', 'desc', 'yesorno', 'yesorno_opt']:
+            if not data in request.data:
+                return Response({}, status=status.HTTP_400_BAD_REQUEST)
+
         yesorno = YesOrNo(desc=request.data.get('yesorno'))
         yesorno.save()
-        for idx, q_opt in enumerate(request.data.get('question_opt')):
-            opt = QuestionOption(question=question, option=q_opt, number=idx)
+
+        for idx, yon_opt in enumerate(request.data.get('yesorno_opt')):
+            opt = YesOrNoOption(yesorno=yesorno, option=yon_opt, number=idx)
             opt.save()
+
+        #Aquí acaba la parte de YesOrNo
+
         voting = Voting(name=request.data.get('name'), desc=request.data.get('desc'),
                 question=question)
         voting.save()

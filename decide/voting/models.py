@@ -13,6 +13,8 @@ class Question(models.Model):
     def __str__(self):
         return self.desc
 
+#Añadida clase YesOrNo
+
 class YesOrNo(models.Model):
     desc = models.TextField()
 
@@ -22,6 +24,21 @@ class YesOrNo(models.Model):
 
 class QuestionOption(models.Model):
     question = models.ForeignKey(Question, related_name='options', on_delete=models.CASCADE)
+    number = models.PositiveIntegerField(blank=True, null=True)
+    option = models.TextField()
+
+    def save(self):
+        if not self.number:
+            self.number = self.question.options.count() + 2
+        return super().save()
+
+    def __str__(self):
+        return '{} ({})'.format(self.option, self.number)
+
+#Añadida clase YesOrNoOption, es decir, opciones de YesOrNo
+
+class YesOrNoOption(models.Model):
+    yesorno = models.ForeignKey(YesOrNo, related_name='options', on_delete=models.CASCADE)
     number = models.PositiveIntegerField(blank=True, null=True)
     option = models.TextField()
 
