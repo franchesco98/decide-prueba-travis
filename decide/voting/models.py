@@ -56,7 +56,12 @@ class Voting(models.Model):
             raise ValidationError({'url': "The url already exists."})
 
     def save(self, *args, **kwargs):
-        self.url = urllib.parse.quote_plus(self.url.encode('utf-8'))
+        try:
+            Voting.objects.get(name=self.name)
+        except:
+            encode_url = urllib.parse.quote_plus(self.url.encode('utf-8'))
+            self.url = encode_url
+        print("self.url", self.url)
         super(Voting, self).save(*args, **kwargs)
 
     def create_pubkey(self):
