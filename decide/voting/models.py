@@ -61,7 +61,7 @@ class Voting(models.Model):
         except:
             encode_url = urllib.parse.quote_plus(self.url.encode('utf-8'))
             self.url = encode_url
-        print("self.url", self.url)
+            
         super(Voting, self).save(*args, **kwargs)
 
     def create_pubkey(self):
