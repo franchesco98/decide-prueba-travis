@@ -4,9 +4,7 @@ from django.utils import timezone
 from .models import QuestionOption
 from .models import Question
 from .models import Voting
-from .models import YesOrNo
-from .models import YesOrNoOption
-
+from .models import YesOrNoQuestion
 from .filters import StartedFilter
 
 
@@ -36,16 +34,9 @@ class QuestionOptionInline(admin.TabularInline):
 class QuestionAdmin(admin.ModelAdmin):
     inlines = [QuestionOptionInline]
 
-#Añadidos inLines para YesOrNo
 
-class YesOrNoOptionInline(admin.TabularInline):
-    model = YesOrNoOption
-
-
-class YesOrNoAdmin(admin.ModelAdmin):
-    inlines = [YesOrNoOptionInline]
-
-#Hasta aquí
+class YesOrNoQuestionAdmin(admin.ModelAdmin):
+    pass
 
 class VotingAdmin(admin.ModelAdmin):
     list_display = ('name', 'start_date', 'end_date')
@@ -60,5 +51,5 @@ class VotingAdmin(admin.ModelAdmin):
 
 admin.site.register(Voting, VotingAdmin)
 admin.site.register(Question, QuestionAdmin)
-#Añadido register para preguntas YesOrNo
-admin.site.register(YesOrNo, YesOrNoAdmin)
+#Añadido register para preguntas YesOrNoQuestion
+admin.site.register(YesOrNoQuestion, YesOrNoQuestionAdmin)
