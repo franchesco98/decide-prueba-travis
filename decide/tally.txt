@@ -1,3 +1,0 @@
-
- Hola Mundo
-[{'option': 'Hola', 'number': 2, 'votes': 1}, {'option': 'Hey', 'number': 3, 'votes': 0}, {'option': 'Mundo', 'number': 4, 'votes': 0}]
