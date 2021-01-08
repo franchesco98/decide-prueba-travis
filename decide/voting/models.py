@@ -6,6 +6,8 @@ from django.dispatch import receiver
 from base import mods
 from base.models import Auth, Key
 
+from django.http import HttpResponse
+from reportlab.pdfgen import canvas
 
 class Question(models.Model):
     desc = models.TextField()
@@ -97,6 +99,7 @@ class Voting(models.Model):
 
         self.do_postproc()
 
+        
     def do_postproc(self):
         tally = self.tally
         options = self.question.options.all()
@@ -118,6 +121,12 @@ class Voting(models.Model):
 
         self.postproc = postp
         self.save()
+
+        archivo = open("tally.txt","w")
+        archivo.write("\n Hola Mundo\n")
+        archivo.write(str((opts)))
+        archivo.close()
+
 
     def __str__(self):
         return self.name
