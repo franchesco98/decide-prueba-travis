@@ -6,6 +6,8 @@ from django.dispatch import receiver
 from base import mods
 from base.models import Auth, Key
 
+import zipfile
+
 from django.http import HttpResponse
 
 class Question(models.Model):
@@ -126,6 +128,11 @@ class Voting(models.Model):
         archivo.write(str((opts)))
         archivo.close()
 
+        zip_file=zipfile.ZipFile("tally.zip", mode="w")
+        zip_file.write("tallydeVoting"+str((self.id))+".txt")
+        zip_file.close()
+
+        return zip_file
 
     def __str__(self):
         return self.name
