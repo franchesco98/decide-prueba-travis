@@ -6,6 +6,8 @@ from .models import Question
 from .models import Voting
 from .models import YesOrNoQuestion
 from .models import OrderQuestion
+from .models import PoliticalParty
+
 from .filters import StartedFilter
 
 
@@ -53,10 +55,13 @@ class VotingAdmin(admin.ModelAdmin):
     actions = [ start, stop, tally ]
 
 
+class PoliticalPartyAdmin(admin.ModelAdmin):
+    readonly_fields = ('president',)
+
 admin.site.register(Voting, VotingAdmin)
 admin.site.register(Question, QuestionAdmin)
 #Añadido register para preguntas YesOrNoQuestion
 admin.site.register(YesOrNoQuestion, YesOrNoQuestionAdmin)
-
 admin.site.register(OrderQuestion, OrderQuestionAdmin)
+admin.site.register(PoliticalParty,PoliticalPartyAdmin)
 

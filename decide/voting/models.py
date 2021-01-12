@@ -16,6 +16,23 @@ class Question(models.Model):
     def __str__(self):
         return self.desc
 
+class PoliticalParty(models.Model):
+
+    name = models.CharField(max_length=200)
+    acronym = models.CharField(max_length=10)
+    description = models.TextField(blank=True, null=True)
+    leader = models.CharField(max_length=200)
+    president = models.CharField(max_length=151, blank=True, null=True)
+
+    def __str__(self):
+       return '{} ({}) - {}'.format(self.acronym, self.name, self.leader)
+
+   
+    class Meta:
+        unique_together = (('name', 'acronym', 'leader'),)
+
+
+
 #Añadida clase YesOrNo
 
 class YesOrNoQuestion(models.Model):
@@ -61,6 +78,8 @@ class Voting(models.Model):
     name = models.CharField(max_length=200)
     desc = models.TextField(blank=True, null=True)
     question = models.ForeignKey(Question, related_name='voting', on_delete=models.CASCADE)
+    political_party = models.ForeignKey(PoliticalParty, related_name='voting', on_delete=models.CASCADE, null=True)
+    # ,blank=True
 
     start_date = models.DateTimeField(blank=True, null=True)
     end_date = models.DateTimeField(blank=True, null=True)

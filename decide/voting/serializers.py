@@ -1,6 +1,8 @@
 from rest_framework import serializers
 
-from .models import Question, QuestionOption, Voting, YesOrNoQuestion, OrderQuestion
+
+
+from .models import Question, QuestionOption, Voting, YesOrNoQuestion, PoliticalParty, OrderQuestion
 from base.serializers import KeySerializer, AuthSerializer
 
 
@@ -57,3 +59,9 @@ class OrderQuestionSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = OrderQuestion
         fields = ('desc', 'preference')
+
+
+class PoliticalPartySerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = PoliticalParty
+        fields = ('name', 'acronym', 'description', 'leader', 'president')
