@@ -51,7 +51,7 @@ class YesOrNoQuestion(models.Model):
 class OrderQuestion(models.Model):
     desc = models.TextField()
     PREFERENCES = (
-        ('B', ''),
+        ('B', '1'),
         ('M', '2'),
         ('A', '3'),
     )
