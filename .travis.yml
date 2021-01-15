@@ -20,6 +20,7 @@ before_script:
 - psql -U postgres -c "create user decide password 'decide'" 
 - psql -U postgres -c "create database test_decide owner decide" 
 - psql -U postgres -c "ALTER USER decide CREATEDB"
+- python manage.py makemigrations
 - python manage.py migrate
 script:
 - python manage.py test
