@@ -55,8 +55,8 @@ class VotingTestCase(BaseTestCase):
             c = Census(voter_id=u.id, voting_id=v.id)
             c.save()
 
-    def create_tenvoters(self, v):
-        for i in range(10):
+    def create_fiftyvoters(self, v):
+        for i in range(50):
             u, _ = User.objects.get_or_create(username='testvoter{}'.format(i))
             u.is_active = True
             u.save()
@@ -91,9 +91,9 @@ class VotingTestCase(BaseTestCase):
                 mods.post('store', json=data)
         return clear
 
-    def test_complete_voting_tenvoters(self):
+    def test_complete_voting_fiftyvoters(self):
         v = self.create_voting()
-        self.create_tenvoters(v)
+        self.create_fiftyvoters(v)
 
         v.create_pubkey()
         v.start_date = timezone.now()
@@ -101,7 +101,7 @@ class VotingTestCase(BaseTestCase):
 
         clear = self.store_votes(v)
 
-        self.login()  # set token
+        self.login()
         v.tally_votes(self.token)
 
         tally = v.tally
@@ -113,7 +113,6 @@ class VotingTestCase(BaseTestCase):
 
         for q in v.postproc:
             self.assertEqual(tally.get(q["number"], 0), q["votes"])
-
 
     def test_complete_voting_with_voters(self):
         v = self.create_voting()
@@ -162,6 +161,45 @@ class VotingTestCase(BaseTestCase):
 
         response = self.client.post('/voting/', data, format='json')
         self.assertEqual(response.status_code, 201)
+
+    def test_create_voting_from_api_noadmin(self):
+        data = {'name': 'Example'}
+        response = self.client.post('/voting/', data, format='json')
+        self.assertEqual(response.status_code, 401)
+
+        self.login(user='noadmin')
+        response = mods.post('voting', params=data, response=True)
+        self.assertEqual(response.status_code, 403)
+
+        data = {
+            'name': 'Example',
+            'desc': 'Description example',
+            'question': 'I want a ',
+            'question_opt': ['cat', 'dog', 'horse']
+        }
+
+        response = self.client.post('/voting/', data, format='json')
+        self.assertEqual(response.status_code, 403 )
+
+    def test_create_voting_from_api_admin(self):
+        data = {'name': 'Example'}
+        response = self.client.post('/voting/', data, format='json')
+        self.assertEqual(response.status_code, 401)
+
+        self.login()
+        response = mods.post('voting', params=data, response=True)
+        self.assertEqual(response.status_code, 400)
+
+        data = {
+            'name': 'Example',
+            'desc': 'Description example',
+            'question': 'I want a ',
+            'question_opt': ['cat', 'dog', 'horse']
+        }
+
+        response = self.client.post('/voting/', data, format='json')
+        self.assertEqual(response.status_code, 201 )
+
 
     def test_update_voting(self):
         voting = self.create_voting()
