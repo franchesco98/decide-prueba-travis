@@ -214,6 +214,10 @@ class VotingTestCase(BaseTestCase):
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json(), 'Voting already tallied')
 
+    def test_create_voting_url_whitespaces(self):
+        v = self.create_voting(url="_test voting")
+        self.assertTrue(Voting.objects.filter(url="_test+voting").exists())
+
     def test_create_voting_url_exists(self):
         v = self.create_voting(url="_test_voting")
 
