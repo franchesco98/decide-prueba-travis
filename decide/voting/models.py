@@ -83,6 +83,9 @@ class Voting(models.Model):
     question = models.ForeignKey(Question, related_name='voting', on_delete=models.CASCADE)
     political_party = models.ForeignKey(PoliticalParty, related_name='voting', on_delete=models.CASCADE, null=True)
     # ,blank=True
+    
+    order_question = models.ForeignKey(OrderQuestion, related_name='voting', on_delete=models.CASCADE, null= True)
+
 
     start_date = models.DateTimeField(blank=True, null=True)
     end_date = models.DateTimeField(blank=True, null=True)
