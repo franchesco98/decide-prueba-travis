@@ -10,9 +10,8 @@ RUN pip install ipython
 
 WORKDIR /app
 
-ADD requirements_docker.txt /app/decide/requirements.txt
-
 RUN git clone https://github.com/RioTinto-Votaciones/decide.git .
+COPY requirements_docker.txt /app/decide/requirements.txt
 RUN pip install -r requirements.txt
 
 WORKDIR /app/decide
