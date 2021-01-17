@@ -1,11 +1,17 @@
-from django.db import models
-from django.contrib.postgres.fields import JSONField
-from django.db.models.signals import post_save
-from django.dispatch import receiver
+import urllib
 
 from base import mods
 from base.models import Auth, Key
+from django.contrib.postgres.fields import JSONField
+from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
+from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.utils.translation import gettext_lazy as _
 
+import zipfile
+
+from django.http import HttpResponse
 
 class Question(models.Model):
     desc = models.TextField()
@@ -13,6 +19,50 @@ class Question(models.Model):
     def __str__(self):
         return self.desc
 
+class PoliticalParty(models.Model):
+
+    name = models.CharField(max_length=200)
+    acronym = models.CharField(max_length=10)
+    description = models.TextField(blank=True, null=True)
+    leader = models.CharField(max_length=200)
+    president = models.CharField(max_length=151, blank=True, null=True)
+
+    def __str__(self):
+       return '{} ({}) - {}'.format(self.acronym, self.name, self.leader)
+
+   
+    class Meta:
+        unique_together = (('name', 'acronym', 'leader'),)
+
+
+
+#Añadida clase YesOrNo
+
+class YesOrNoQuestion(models.Model):
+    desc = models.TextField()
+    CHOICES = (
+        ('Y', 'Yes'),
+        ('N', 'No'),
+    )
+    choice = models.CharField(max_length=1, choices=CHOICES, blank=True)
+
+    def __str__(self):
+        return self.desc
+
+#Añadida clase Order
+
+class OrderQuestion(models.Model):
+    desc = models.TextField()
+    PREFERENCES = (
+        ('B', '1'),
+        ('M', '2'),
+        ('A', '3'),
+    )
+    preference = models.CharField(max_length=1, choices=PREFERENCES, blank=True)
+
+    def __str__(self):
+        return self.desc
+    
 
 class QuestionOption(models.Model):
     question = models.ForeignKey(Question, related_name='options', on_delete=models.CASCADE)
@@ -27,11 +77,15 @@ class QuestionOption(models.Model):
     def __str__(self):
         return '{} ({})'.format(self.option, self.number)
 
-
 class Voting(models.Model):
     name = models.CharField(max_length=200)
     desc = models.TextField(blank=True, null=True)
     question = models.ForeignKey(Question, related_name='voting', on_delete=models.CASCADE)
+    political_party = models.ForeignKey(PoliticalParty, related_name='voting', on_delete=models.CASCADE, null=True)
+    # ,blank=True
+    
+    order_question = models.ForeignKey(OrderQuestion, related_name='voting', on_delete=models.CASCADE, null= True)
+
 
     start_date = models.DateTimeField(blank=True, null=True)
     end_date = models.DateTimeField(blank=True, null=True)
@@ -41,6 +95,25 @@ class Voting(models.Model):
 
     tally = JSONField(blank=True, null=True)
     postproc = JSONField(blank=True, null=True)
+
+    url = models.CharField(max_length=40, help_text=u"http://localhost:8000/booth/")
+
+    def clean_fields(self, exclude=None):
+        super(Voting, self).clean_fields(exclude)
+        
+        url = urllib.parse.quote_plus(self.url.encode('utf-8'))
+        
+        if Voting.objects.filter(url=url).exists():
+            raise ValidationError({'url': "The url already exists."})
+
+    def save(self, *args, **kwargs):
+        try:
+            Voting.objects.get(name=self.name)
+        except:
+            encode_url = urllib.parse.quote_plus(self.url.encode('utf-8'))
+            self.url = encode_url
+            
+        super(Voting, self).save(*args, **kwargs)
 
     def create_pubkey(self):
         if self.pub_key or not self.auths.count():
@@ -97,6 +170,7 @@ class Voting(models.Model):
 
         self.do_postproc()
 
+
     def do_postproc(self):
         tally = self.tally
         options = self.question.options.all()
@@ -119,5 +193,17 @@ class Voting(models.Model):
         self.postproc = postp
         self.save()
 
+        archivo = open("tallydeVoting"+str((self.id))+".txt","w")
+        archivo.write("\n Hola Mundo\n")
+        archivo.write(str((opts)))
+        archivo.close()
+
+        zip_file=zipfile.ZipFile("tally.zip", mode="w")
+        zip_file.write("tallydeVoting"+str((self.id))+".txt")
+        zip_file.close()
+
+        return zip_file
+
     def __str__(self):
         return self.name
+

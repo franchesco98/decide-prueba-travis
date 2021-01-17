@@ -31,18 +31,13 @@ class VotingTestCase(BaseTestCase):
         k.k = ElGamal.construct((p, g, y))
         return k.encrypt(msg)
 
-    def create_voting(self, url=None):
+    def create_voting(self):
         q = Question(desc='test question')
         q.save()
         for i in range(5):
             opt = QuestionOption(question=q, option='option {}'.format(i+1))
             opt.save()
-        
-        if url:
-            v = Voting(name='test voting', question=q, url=url)
-        else: 
-            v = Voting(name='test voting', question=q)
-
+        v = Voting(name='test voting', question=q)
         v.save()
 
         a, _ = Auth.objects.get_or_create(url=settings.BASEURL,
@@ -53,15 +48,17 @@ class VotingTestCase(BaseTestCase):
         return v
 
     def create_voters(self, v):
-        for i in range(100):
+        for i in rensus(voter_id=u.id, voting_id=v.id)
+            c.save()
+ange(100):
             u, _ = User.objects.get_or_create(username='testvoter{}'.format(i))
             u.is_active = True
             u.save()
             c = Census(voter_id=u.id, voting_id=v.id)
             c.save()
 
-    def create_fiftyvoters(self, v):
-        for i in range(50):
+    def create_tenvoters(self, v):
+        for i in range(10):
             u, _ = User.objects.get_or_create(username='testvoter{}'.format(i))
             u.is_active = True
             u.save()
@@ -96,9 +93,9 @@ class VotingTestCase(BaseTestCase):
                 mods.post('store', json=data)
         return clear
 
-    def test_complete_voting_fiftyvoters(self):
+    def test_complete_voting_tenvoters(self):
         v = self.create_voting()
-        self.create_fiftyvoters(v)
+        self.create_tenvoters(v)
 
         v.create_pubkey()
         v.start_date = timezone.now()
@@ -106,7 +103,7 @@ class VotingTestCase(BaseTestCase):
 
         clear = self.store_votes(v)
 
-        self.login()
+        self.login()  # set token
         v.tally_votes(self.token)
 
         tally = v.tally
@@ -119,9 +116,10 @@ class VotingTestCase(BaseTestCase):
         for q in v.postproc:
             self.assertEqual(tally.get(q["number"], 0), q["votes"])
 
+
     def test_complete_voting_with_voters(self):
         v = self.create_voting()
-        self.create_voters(v)
+        self.create_voters(v2)
 
         v.create_pubkey()
         v.start_date = timezone.now()
@@ -185,63 +183,6 @@ class VotingTestCase(BaseTestCase):
 
         response = self.client.post('/voting/', data, format='json')
         self.assertEqual(response.status_code, 403 )
-
-    def test_create_voting_from_api_admin(self):
-        data = {'name': 'Example'}
-        response = self.client.post('/voting/', data, format='json')
-        self.assertEqual(response.status_code, 401)
-
-        self.login()
-        response = mods.post('voting', params=data, response=True)
-        self.assertEqual(response.status_code, 400)
-
-        data = {
-            'name': 'Example',
-            'desc': 'Description example',
-            'question': 'I want a ',
-            'question_opt': ['cat', 'dog', 'horse']
-        }
-
-        response = self.client.post('/voting/', data, format='json')
-        self.assertEqual(response.status_code, 201 )
-
-    def test_create_voting_without_url(self):
-        v = self.create_voting()
-
-        data = {
-            'name': 'Example',
-            'desc': 'Description example',
-            'question': 'Is there any url? ',
-            'question_opt': ['Yes', 'No']
-        }
-
-        response = self.client.post('/voting/', data, format='json')
-        self.assertEqual(response.status_code, 401)
-
-    def test_create_voting_without_url_and_question(self):
-        v = self.create_voting()
-
-        data = {
-            'name': 'Example',
-            'desc': 'Description example',
-            'question_opt': ['Yes', 'No']
-        }
-
-        response = self.client.post('/voting/', data, format='json')
-        self.assertEqual(response.status_code, 401)
-
-    def test_create_voting_without_url_and_options(self):
-        v = self.create_voting()
-
-        data = {
-            'name': 'Example',
-            'desc': 'Description example',
-            'question': 'Is there any url? '
-        }
-
-        response = self.client.post('/voting/', data, format='json')
-        self.assertEqual(response.status_code, 401)
-
 
     def test_update_voting(self):
         voting = self.create_voting()
@@ -320,21 +261,3 @@ class VotingTestCase(BaseTestCase):
         response = self.client.put('/voting/{}/'.format(voting.pk), data, format='json')
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json(), 'Voting already tallied')
-
-    def test_create_voting_url_whitespaces(self):
-        v = self.create_voting(url="_test voting")
-        self.assertTrue(Voting.objects.filter(url="_test+voting").exists())
-
-    def test_create_voting_url_exists(self):
-        v = self.create_voting(url="_test_voting")
-
-        data = {
-            'name': 'Example',
-            'desc': 'Description example',
-            'url': '_test_voting',
-            'question': 'Is this a question? ',
-            'question_opt': ['Yes', 'No']
-        }
-
-        response = self.client.post('/voting/', data, format='json')
-        self.assertEqual(response.status_code, 401)
