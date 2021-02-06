@@ -10,7 +10,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select, WebDriverWait
 
-from .models import PoliticalParty, Question, QuestionOption
+from .models import PoliticalParty, Question, QuestionOption, Voting
 
 
 class VotingAdminTestCase(StaticLiveServerTestCase):
@@ -33,6 +33,11 @@ class VotingAdminTestCase(StaticLiveServerTestCase):
 
         auth = Auth(name="_Auth_Test", url=self.live_server_url, me=True)
         auth.save()
+
+        voting = Voting(desc="_Votación_Test_Ya_Existente", name="_Votación_Test_Ya_Existente_Descripción", question=question, political_party=political_party, url="_votacion_test_ejemplo_already_exists")
+        voting.save()
+
+        voting.auths.add(auth)
 
         options = webdriver.ChromeOptions()
         options.headless = True
@@ -81,4 +86,8 @@ class VotingAdminTestCase(StaticLiveServerTestCase):
 
     def test_create_voting_without_url(self):
         self.create_voting()
+        self.assertTrue(len(self.driver.find_elements_by_class_name('errorlist'))==1)
+
+    def test_create_voting_existing_url(self):
+        self.create_voting(url="_votacion_test_ejemplo_already_exists")
         self.assertTrue(len(self.driver.find_elements_by_class_name('errorlist'))==1)
