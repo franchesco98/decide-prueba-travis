@@ -46,7 +46,7 @@ class VotingAdminTestCase(StaticLiveServerTestCase):
 
         self.base.tearDown()
 
-    def test_create_voting_with_url(self):
+    def create_voting(self, url=None):
         self.driver.get(f'{self.live_server_url}/admin')
         self.driver.set_window_size(924, 1053)
         self.driver.find_element(By.ID, "id_username").send_keys("admin-selenium")
@@ -69,34 +69,16 @@ class VotingAdminTestCase(StaticLiveServerTestCase):
         select = Select(self.driver.find_element_by_id('id_auths'))
         select.select_by_visible_text(str(self.live_server_url))
         
-        self.driver.find_element(By.ID, "id_url").click()
-        self.driver.find_element(By.ID, "id_url").send_keys("_votacion_test_ejemplo_")
+        if url:
+            self.driver.find_element(By.ID, "id_url").click()
+            self.driver.find_element(By.ID, "id_url").send_keys(url)
 
         self.driver.find_element(By.NAME, "_save").click()
+
+    def test_create_voting_with_url(self):
+        self.create_voting(url="_votacion_test_ejemplo_")
         self.assertTrue(len(self.driver.find_elements_by_class_name('success'))==1)
 
     def test_create_voting_without_url(self):
-        self.driver.get(f'{self.live_server_url}/admin')
-        self.driver.set_window_size(924, 1053)
-        self.driver.find_element(By.ID, "id_username").send_keys("admin-selenium")
-        self.driver.find_element(By.ID, "id_password").send_keys("qwerty")
-        self.driver.find_element(By.ID, "id_password").send_keys(Keys.ENTER)
-        time.sleep(3)
-
-        self.driver.find_element(By.CSS_SELECTOR, ".model-voting .addlink").click()
-        time.sleep(3)
-        self.driver.find_element(By.ID, "id_name").send_keys("_Votación_Test_No_URL")
-        self.driver.find_element(By.ID, "id_desc").click()
-        self.driver.find_element(By.ID, "id_desc").send_keys("_Votación_Test_Descripción_")
-
-        select = Select(self.driver.find_element_by_id('id_question'))
-        select.select_by_visible_text('_Question_Test_Descripción_')
-
-        select = Select(self.driver.find_element_by_id('id_political_party'))
-        select.select_by_visible_text('_PPT_ (_Political_Party_Test_) - _Leader_')
-
-        select = Select(self.driver.find_element_by_id('id_auths'))
-        select.select_by_visible_text(str(self.live_server_url))
-
-        self.driver.find_element(By.NAME, "_save").click()
+        self.create_voting()
         self.assertTrue(len(self.driver.find_elements_by_class_name('errorlist'))==1)
