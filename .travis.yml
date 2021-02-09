@@ -1,32 +1,38 @@
 language: python
 python:
-  - '3.6'
+- '3.6'
 branches:
   only:
   - master
   - develop
 services:
-  - postgresql
+- postgresql
 env:
-  - DJANGO=2.0 DB=postgres
+- DJANGO=2.0 DB=postgres
 global:
-  - PGPORT=5432
+- PGPORT=5432
 before_install:
-  - sudo apt update
-  - sudo apt install chromium-chromedriver
-  - cd decide
+- sudo apt update
+- sudo apt install chromium-chromedriver
+- cd decide
 install:
-  - pip install selenium
-  - pip install -r ../requirements.txt
+- pip install selenium
+- pip install -r ../requirements.txt
 before_script:
-  - cp local_settings.travis.py local_settings.py
-  - psql -U postgres -c "create user decide password 'decide'" 
-  - psql -U postgres -c "create database test_decide owner decide" 
-  - psql -U postgres -c "ALTER USER decide CREATEDB"
-  - python manage.py makemigrations
-  - python manage.py migrate
+- cp local_settings.travis.py local_settings.py
+- psql -U postgres -c "create user decide password 'decide'"
+- psql -U postgres -c "create database test_decide owner decide"
+- psql -U postgres -c "ALTER USER decide CREATEDB"
+- python manage.py makemigrations
+- python manage.py migrate
 script:
-  - python manage.py test
+- python manage.py test
 addons:
   postgresql: '9.6'
   chrome: stable
+deploy:
+  provider: heroku
+  app: decide-prueba-travis
+  strategy: git
+  api_key:
+    secure: aTeTjqXOpaOHswby1+Qn4IjQDo7eddsFIdF36omDa+MnYrNmW3EfOj1jZ0sViI8HT5VEwXPzW6gbJSp2uAoS0vW3tFwStZbhjb44DeV7ZvBLRGneB+Ha9YkksBTuNdwhoYqxua4YnNWaUQjckv8INE4uQkJv/lQm7NXiNuFeeDLN9v6WYRq0+0SEGdjGc9aFyVIZLIJ1MNomxYrb6hOy4zFUr+IAukbnPMEXytVTHX8RAYgURMlsVK6/upM65Wtt4Teb5GWVB+4WmAZ6ucKgjQA5KSG90hNY4s/GOZb2fFnGWajmATQsJPCm1+1xy4XVPpzr/af2j8sdR/CpjA/8urjDNUZ4bc3xZHMsUHJDQchum7BC5imNFcwnZLqwIToxavFQAbGiW6dsBCh1MjZoIZHSBI+7o972T5ImP74Ad3Txq/DC2/TZTRVqRXfuA/0RHL5NE3YAuR+0cGeULHU8qeyIAg0oSr9lhPQe0urv1edBjNwbuphhwYvj6VFTWmwevuL7x1TwAB8Endrab2tu5BibKeiGcrp/s3gPoNtZtYZT/0ABQ0djaUB/XgjYTrdprsUIlzzzY4OWSgBBHiGCeVaZNjCU7xtEfKllTwwCtJ0fJFdjhPJhniMK6S7OyxcOoPoEf9iLSZcndJazSJtlttgeQYyhXKou74Z5Xu82PQo=
