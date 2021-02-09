@@ -12,7 +12,8 @@ env:
 global:
   - PGPORT=5432
 before_install:
-  - sudo apt install chromium-browser chromium-chromedriver
+  - sudo apt update
+  - sudo apt install chromium-chromedriver
   - cd decide
 install:
   - pip install selenium
