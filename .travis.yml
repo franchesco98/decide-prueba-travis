@@ -26,7 +26,7 @@ before_script:
 - python manage.py makemigrations
 - python manage.py migrate
 script:
-- python manage.py test
+- python manage.py test voting
 addons:
   postgresql: '9.6'
   chrome: stable
