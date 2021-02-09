@@ -52,6 +52,7 @@ class VotingAdminTestCase(StaticLiveServerTestCase):
         self.base.tearDown()
 
     def create_voting(self, url=None):
+        print(self.live_server_url)
         self.driver.get(f'{self.live_server_url}/admin')
         self.driver.set_window_size(924, 1053)
         self.driver.find_element(By.ID, "id_username").send_keys("admin-selenium")
