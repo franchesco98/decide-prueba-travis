@@ -70,7 +70,7 @@ MODULES = [
     'voting',
 ]
 
-BASEURL = 'https://decide-prueba-travis.herokuapp.com'
+BASEURL = os.environ.get("BASEURL")
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
