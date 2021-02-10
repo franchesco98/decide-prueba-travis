@@ -34,7 +34,7 @@ addons:
   postgresql: '9.6'
   chrome: stable
 before_deploy:
-  -if branch = develop; then cd decide; cp -f develop_settings.py settings.py; cd ..; fi
+  - if [ "$TRAVIS_BRANCH" = "develop" ]; then cd decide; cp -f develop_settings.py settings.py; cd ..; fi
 deploy:
   - provider: heroku
     app: decide-prueba-travis
