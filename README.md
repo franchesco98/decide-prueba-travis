@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/RioTinto-Votaciones/decide.svg?branch=develop)](https://travis-ci.com/RioTinto-Votaciones/decide)
+[![Build Status](https://travis-ci.com/franchesco98/decide-prueba-travis.svg?branch=develop)](https://travis-ci.com/franchesco98/decide-prueba-travis)
 
 Plataforma voto electrónico educativa pro
 =====================================
